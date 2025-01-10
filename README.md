@@ -3,10 +3,8 @@
 # Proyecto
 MenuBoard es un sistema de gestión de restaurantes diseñado para facilitar la administración de restaurantes, cafeterías o cualquier establecimiento de alimentos y bebidas. La aplicación permite crear, modificar y gestionar menús de manera eficiente, proporcionando a los usuarios una interfaz sencilla para realizar actualizaciones rápidas, gestionar categorías de platos y actualizar precios de forma intuitiva.
 
-
 ## Descripción
 MenuBoard es un proyecto orientado a simplificar la gestión de menús digitales. El sistema permite a los administradores agregar platos, organizar menús por categorías y modificar descripciones o precios de manera dinámica. El objetivo principal es ofrecer una herramienta que permita la actualización en tiempo real de los menús, brindando flexibilidad para adaptarse a cambios en los ingredientes, promociones o ajustes de precios.
-
 
 ## Funcionalidades
 
