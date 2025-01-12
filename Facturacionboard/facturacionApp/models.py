@@ -1,6 +1,16 @@
 from django.db import models
 from datetime import date
 
+# Modelo para los impuestos
+class Impuesto(models.Model):
+    nombre = models.CharField(max_length=50)  # Ejemplo: IVA, ICE
+    porcentaje = models.FloatField()  # Por ejemplo: 12.0 para el IVA
+    descripcion = models.TextField(blank=True, null=True)  # Opcional para más detalles
+
+    def __str__(self):
+        return f"{self.nombre} - {self.porcentaje}%"
+
+# Modelo para los clientes
 class Cliente(models.Model):
     nombre = models.CharField(max_length=255)
     correo_electronico = models.EmailField()
@@ -10,11 +20,16 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
-
+# Modelo para los productos
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)
     precio = models.FloatField()
     descripcion = models.TextField()
+    impuestos = models.ManyToManyField(Impuesto, blank=True)  # Relación con impuestos
+
+    def precio_con_impuestos(self):
+        total_impuesto = sum([imp.porcentaje for imp in self.impuestos.all()])
+        return self.precio * (1 + total_impuesto / 100)
 
     def __str__(self):
         return self.nombre
@@ -23,7 +38,23 @@ class Producto(models.Model):
         self.precio = nuevo_precio
         self.save()
 
+# Modelo para los ítems de pedido
+class ItemPedido(models.Model):
+    pedido = models.ForeignKey("Pedido", on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.FloatField()
 
+    def subtotal(self):
+        return self.cantidad * self.precio_unitario
+
+    def subtotal_con_impuestos(self):
+        return self.producto.precio_con_impuestos() * self.cantidad
+
+    def __str__(self):
+        return f"{self.producto.nombre} x {self.cantidad}"
+
+# Modelo para el pedido
 class Pedido(models.Model):
     ESTADO_CHOICES = [
         ('PENDIENTE', 'Pendiente'),
@@ -41,33 +72,31 @@ class Pedido(models.Model):
     def agregar_item(self, producto, cantidad):
         item, created = ItemPedido.objects.get_or_create(pedido=self, producto=producto)
         item.cantidad += cantidad
-        item.precio_unitario = producto.precio  # Usamos el precio del producto automáticamente
+        item.precio_unitario = producto.precio
         item.save()
 
     def total_pedido(self):
         return sum(item.subtotal() for item in self.itempedido_set.all())
 
+    def total_pedido_con_impuestos(self):
+        return sum(item.subtotal_con_impuestos() for item in self.itempedido_set.all())
+
     def __str__(self):
         return f"Pedido {self.numero} - {self.cliente.nombre}"
 
-
-class ItemPedido(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField()
-    precio_unitario = models.FloatField()
-
-    def subtotal(self):
-        return self.cantidad * self.precio_unitario
+# Modelo para la promoción
+class Promocion(models.Model):
+    descripcion = models.CharField(max_length=255)
+    porcentaje_descuento = models.FloatField()
 
     def __str__(self):
-        return f"{self.producto.nombre} x {self.cantidad}"
+        return self.descripcion
 
-
+# Modelo para la factura
 class Factura(models.Model):
     numero = models.AutoField(primary_key=True)
     total = models.FloatField(default=0.0)
-    subtotal = models.FloatField(default=0.0)  # Se agrega el campo para el subtotal
+    subtotal = models.FloatField(default=0.0)
     impuesto_total = models.FloatField(default=0.0)
     descuento = models.FloatField(default=0.0)
     fecha = models.DateField(default=date.today)
@@ -77,60 +106,36 @@ class Factura(models.Model):
     metodo_pago_transferencia = models.ForeignKey('PagoTransferencia', null=True, blank=True, on_delete=models.SET_NULL)
     promocion = models.ForeignKey('Promocion', null=True, blank=True, on_delete=models.SET_NULL)
 
+    def calcular_impuesto_total(self):
+        impuesto_total = 0.0
+        for item in self.pedido.itempedido_set.all():
+            for impuesto in item.producto.impuestos.all():
+                impuesto_total += item.subtotal() * (impuesto.porcentaje / 100)
+        return impuesto_total
+
     def calcular_monto_total(self):
-        subtotal = self.pedido.total_pedido()
-        impuestos = self.impuesto_total  # El valor del impuesto se toma de la propiedad
-        descuento = self.descuento
-        total_con_descuento = subtotal - descuento + impuestos
-        self.subtotal = subtotal
-        self.total = total_con_descuento
-        self.impuesto_total = impuestos
-        self.save()
+        # Calcular el subtotal desde el pedido
+        self.subtotal = self.pedido.total_pedido()
 
-    def aplicar_promocion(self):
+        # Calcular el descuento basado en la promoción
         if self.promocion:
-            self.promocion.aplicar_promocion(self)
+            self.descuento = self.pedido.total_pedido() * (self.promocion.porcentaje_descuento / 100)
+        else:
+            self.descuento = 0.0
 
-    def generar_comprobante(self):
-        return {
-            "Factura": self.numero,
-            "Cliente": self.pedido.cliente.nombre,
-            "Productos": [
-                {
-                    "Producto": item.producto.nombre,
-                    "Cantidad": item.cantidad,
-                    "Precio Unitario": item.precio_unitario,
-                    "Subtotal": item.subtotal(),
-                }
-                for item in self.pedido.itempedido_set.all()
-            ],
-            "Subtotal": self.subtotal,
-            "Descuento": self.descuento,
-            "Impuestos": self.impuesto_total,
-            "Total": self.total,
-            "Metodo de Pago Efectivo": self.metodo_pago_efectivo.__str__() if self.metodo_pago_efectivo else "No especificado",
-            "Metodo de Pago Tarjeta": self.metodo_pago_tarjeta.__str__() if self.metodo_pago_tarjeta else "No especificado",
-            "Metodo de Pago Transferencia": self.metodo_pago_transferencia.__str__() if self.metodo_pago_transferencia else "No especificado",
-            "Promocion Aplicada": self.promocion.descripcion if self.promocion else "Ninguna",
-        }
+        # Calcular el total incluyendo impuestos
+        self.impuesto_total = self.calcular_impuesto_total()
+        self.total = self.subtotal - self.descuento + self.impuesto_total
+
+    def save(self, *args, **kwargs):
+        # Calcular los valores antes de guardar
+        self.calcular_monto_total()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Factura {self.numero} para Pedido {self.pedido.numero}"
 
-
-class Promocion(models.Model):
-    descripcion = models.CharField(max_length=255)
-    porcentaje_descuento = models.FloatField()
-
-    def aplicar_promocion(self, factura):
-        descuento = factura.pedido.total_pedido() * (self.porcentaje_descuento / 100)
-        factura.descuento = descuento
-        factura.calcular_monto_total()
-
-    def __str__(self):
-        return self.descripcion
-
-
+# Modelo abstracto para métodos de pago
 class MetodoDePago(models.Model):
     monto_pagado = models.FloatField()
     cuenta_por_cobrar = models.FloatField()
@@ -138,22 +143,22 @@ class MetodoDePago(models.Model):
     class Meta:
         abstract = True
 
-
+# Modelo para el pago por transferencia
 class PagoTransferencia(MetodoDePago):
     numero_transferencia = models.CharField(max_length=50)
     banco_origen = models.CharField(max_length=255)
 
-
+# Modelo para el pago en efectivo
 class PagoEfectivo(MetodoDePago):
     cambio = models.FloatField()
 
-
+# Modelo para el pago con tarjeta
 class PagoTarjeta(MetodoDePago):
     numero_tarjeta = models.CharField(max_length=16)
     titular = models.CharField(max_length=255)
     vencimiento = models.DateField()
 
-
+# Modelo para el historial de facturas
 class HistorialDeFactura(models.Model):
     factura = models.ForeignKey(Factura, on_delete=models.CASCADE)
 

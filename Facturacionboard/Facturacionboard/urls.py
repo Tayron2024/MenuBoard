@@ -22,6 +22,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.pagina_inicio, name='inicio'),
     path('facturas/', views.listar_facturas, name='listar_facturas'),
+    path('pedidos/', views.listar_pedidos, name='listar_pedidos'),
+    path('facturas/<int:numero>/pdf/', views.generar_factura_pdf, name='generar_factura_pdf'),
+    path('pedidos/<int:numero>/', views.detalle_pedido, name='detalle_pedido'),
     path('facturas/<int:numero>/', views.detalle_factura, name='detalle_factura'),
     path('historial/', views.historial_facturas, name='historial_facturas'),
+    path('historial/filtrar/', views.filtrar_historial, name='filtrar_historial'),
+    path('factura/<int:numero>/pdf/', views.generar_factura_pdf, name='generar_factura_pdf'),
 ]
