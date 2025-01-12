@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Facturas{% endblock %}
+
+{% block content %}
+<h1>Historial de Facturas</h1>
+<table>
+    <thead>
+        <tr>
+            <th># Factura</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for factura in facturas %}
+        <tr>
+            <td>{{ factura.numero }}</td>
+            <td>{{ factura.pedido.cliente.nombre }}</td>
+            <td>{{ factura.fecha }}</td>
+            <td>${{ factura.total }}</td>
+            <td><a href="{% url 'detalle_factura' factura.numero %}">Ver Detalle</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

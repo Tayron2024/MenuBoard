@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Factura{% endblock %}
+
+{% block content %}
+<h1>Factura #{{ factura.numero }}</h1>
+<p><strong>Cliente:</strong> {{ factura.pedido.cliente.nombre }}</p>
+<p><strong>Fecha:</strong> {{ factura.fecha }}</p>
+<p><strong>Total:</strong> ${{ factura.total }}</p>
+<p><strong>Impuestos:</strong> ${{ factura.impuesto_total }}</p>
+<p><strong>Descuento:</strong> ${{ factura.descuento }}</p>
+
+<h2>Productos</h2>
+<ul>
+    {% for item in factura.pedido.itempedido_set.all %}
+    <li>{{ item.producto.nombre }} - {{ item.cantidad }} x ${{ item.precio_unitario }} (Subtotal: ${{ item.subtotal }})</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'listar_facturas' %}">Volver a Facturas</a>
+{% endblock %}

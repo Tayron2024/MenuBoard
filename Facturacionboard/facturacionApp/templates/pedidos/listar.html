@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Lista de Pedidos</h2>
+    <ul>
+        {% for pedido in pedidos %}
+            <li>
+                Pedido #{{ pedido.numero }} - Cliente: {{ pedido.cliente.nombre }}
+                <a href="{% url 'generar_factura' pedido.id %}">Generar Factura</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

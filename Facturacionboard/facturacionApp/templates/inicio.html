@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<h1>Bienvenido a FacturaciónApp</h1>
+<p>Selecciona una opción del menú para continuar:</p>
+<ul>
+    <li><a href="{% url 'listar_facturas' %}">Ver Facturas</a></li>
+    <li><a href="{% url 'historial_facturas' %}">Historial de Facturas</a></li>
+</ul>
+{% endblock %}
