@@ -10,15 +10,22 @@ class Impuesto(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.porcentaje}%"
 
-# Modelo para los clientes
-class Cliente(models.Model):
+# Modelo para las personas
+class Persona(models.Model):
     nombre = models.CharField(max_length=255)
     correo_electronico = models.EmailField()
     direccion = models.TextField()
     telefono = models.CharField(max_length=15)
 
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return self.nombre
+
+# Modelo para los clientes
+class Cliente(Persona):
+    pass
 
 # Modelo para los productos
 class Producto(models.Model):
@@ -38,7 +45,7 @@ class Producto(models.Model):
         self.precio = nuevo_precio
         self.save()
 
-# Modelo para los ítems de pedido
+# Modelo para los items de pedido
 class ItemPedido(models.Model):
     pedido = models.ForeignKey("Pedido", on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
@@ -84,13 +91,18 @@ class Pedido(models.Model):
     def __str__(self):
         return f"Pedido {self.numero} - {self.cliente.nombre}"
 
-# Modelo para la promoción
+# Modelo para la promocion
 class Promocion(models.Model):
     descripcion = models.CharField(max_length=255)
     porcentaje_descuento = models.FloatField()
 
     def __str__(self):
         return self.descripcion
+
+# Interfaz para aplicar descuento
+class DescuentoAplicable:
+    def aplicar_descuento(self, monto):
+        raise NotImplementedError("Debe implementar el método aplicar_descuento")
 
 # Modelo para la factura
 class Factura(models.Model):
@@ -135,7 +147,24 @@ class Factura(models.Model):
     def __str__(self):
         return f"Factura {self.numero} para Pedido {self.pedido.numero}"
 
-# Modelo abstracto para métodos de pago
+# Modelo para los items de factura
+class ItemFactura(models.Model):
+    factura = models.ForeignKey(Factura, on_delete=models.CASCADE, related_name="items")
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    subtotal = models.FloatField()
+
+    def calcular_subtotal(self):
+        self.subtotal = self.cantidad * self.producto.precio
+
+    def save(self, *args, **kwargs):
+        self.calcular_subtotal()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.producto.nombre} x {self.cantidad}"
+
+# Modelo abstracto para metodos de pago
 class MetodoDePago(models.Model):
     monto_pagado = models.FloatField()
     cuenta_por_cobrar = models.FloatField()
