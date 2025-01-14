@@ -10,9 +10,11 @@ class Impuesto(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.porcentaje}%"
 
+
 # Modelo para las personas
 class Persona(models.Model):
     nombre = models.CharField(max_length=255)
+    cedula = models.CharField(max_length=20, unique=True, default='0000000000')
     correo_electronico = models.EmailField()
     direccion = models.TextField()
     telefono = models.CharField(max_length=15)
@@ -21,11 +23,13 @@ class Persona(models.Model):
         abstract = True
 
     def __str__(self):
-        return self.nombre
+        return f"{self.nombre} - {self.cedula}"  # Incluye cédula en la representación
+
 
 # Modelo para los clientes
 class Cliente(Persona):
     pass
+
 
 # Modelo para los productos
 class Producto(models.Model):
@@ -45,6 +49,7 @@ class Producto(models.Model):
         self.precio = nuevo_precio
         self.save()
 
+
 # Modelo para los items de pedido
 class ItemPedido(models.Model):
     pedido = models.ForeignKey("Pedido", on_delete=models.CASCADE)
@@ -60,6 +65,7 @@ class ItemPedido(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} x {self.cantidad}"
+
 
 # Modelo para el pedido
 class Pedido(models.Model):
@@ -91,6 +97,7 @@ class Pedido(models.Model):
     def __str__(self):
         return f"Pedido {self.numero} - {self.cliente.nombre}"
 
+
 # Modelo para la promocion
 class Promocion(models.Model):
     descripcion = models.CharField(max_length=255)
@@ -99,10 +106,6 @@ class Promocion(models.Model):
     def __str__(self):
         return self.descripcion
 
-# Interfaz para aplicar descuento
-class DescuentoAplicable:
-    def aplicar_descuento(self, monto):
-        raise NotImplementedError("Debe implementar el método aplicar_descuento")
 
 # Modelo para la factura
 class Factura(models.Model):
@@ -126,26 +129,18 @@ class Factura(models.Model):
         return impuesto_total
 
     def calcular_monto_total(self):
-        # Calcular el subtotal desde el pedido
         self.subtotal = self.pedido.total_pedido()
-
-        # Calcular el descuento basado en la promoción
-        if self.promocion:
-            self.descuento = self.pedido.total_pedido() * (self.promocion.porcentaje_descuento / 100)
-        else:
-            self.descuento = 0.0
-
-        # Calcular el total incluyendo impuestos
+        self.descuento = self.pedido.total_pedido() * (self.promocion.porcentaje_descuento / 100) if self.promocion else 0.0
         self.impuesto_total = self.calcular_impuesto_total()
         self.total = self.subtotal - self.descuento + self.impuesto_total
 
     def save(self, *args, **kwargs):
-        # Calcular los valores antes de guardar
         self.calcular_monto_total()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Factura {self.numero} para Pedido {self.pedido.numero}"
+        return f"Factura {self.numero} para Pedido {self.pedido.numero} - Cliente: {self.pedido.cliente.nombre} ({self.pedido.cliente.cedula})"
+
 
 # Modelo para los items de factura
 class ItemFactura(models.Model):
@@ -164,6 +159,7 @@ class ItemFactura(models.Model):
     def __str__(self):
         return f"{self.producto.nombre} x {self.cantidad}"
 
+
 # Modelo abstracto para metodos de pago
 class MetodoDePago(models.Model):
     monto_pagado = models.FloatField()
@@ -172,20 +168,24 @@ class MetodoDePago(models.Model):
     class Meta:
         abstract = True
 
+
 # Modelo para el pago por transferencia
 class PagoTransferencia(MetodoDePago):
     numero_transferencia = models.CharField(max_length=50)
     banco_origen = models.CharField(max_length=255)
 
+
 # Modelo para el pago en efectivo
 class PagoEfectivo(MetodoDePago):
     cambio = models.FloatField()
+
 
 # Modelo para el pago con tarjeta
 class PagoTarjeta(MetodoDePago):
     numero_tarjeta = models.CharField(max_length=16)
     titular = models.CharField(max_length=255)
     vencimiento = models.DateField()
+
 
 # Modelo para el historial de facturas
 class HistorialDeFactura(models.Model):

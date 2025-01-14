@@ -5,6 +5,29 @@ from .models import (
     PagoEfectivo, PagoTarjeta, HistorialDeFactura
 )
 
+class MontoTotalFilter(admin.SimpleListFilter):
+    title = 'monto total'
+    parameter_name = 'monto_total'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('<100', 'Menos de 100'),
+            ('100-500', 'Entre 100 y 500'),
+            ('500-1000', 'Entre 500 y 1000'),
+            ('>1000', 'Más de 1000'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == '<100':
+            return queryset.filter(factura__total__lt=100)
+        if self.value() == '100-500':
+            return queryset.filter(factura__total__gte=100, factura__total__lt=500)
+        if self.value() == '500-1000':
+            return queryset.filter(factura__total__gte=500, factura__total__lt=1000)
+        if self.value() == '>1000':
+            return queryset.filter(factura__total__gte=1000)
+        return queryset
+
 class ItemPedidoInline(admin.TabularInline):
     model = ItemPedido
     extra = 1
@@ -15,7 +38,7 @@ class PedidoAdmin(admin.ModelAdmin):
     list_display = ('numero', 'estado', 'fecha', 'cliente', 'total_pedido', 'total_pedido_con_impuestos')
     search_fields = ('numero', 'cliente__nombre')
     list_filter = ('estado', 'fecha')
-    inlines = [ItemPedidoInline]  # Correctamente definido como lista de inlines
+    inlines = [ItemPedidoInline]
 
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
@@ -32,7 +55,7 @@ class FacturaAdmin(admin.ModelAdmin):
 class HistorialDeFacturaAdmin(admin.ModelAdmin):
     list_display = ('factura', 'fecha', 'monto_total')
     search_fields = ('factura__numero', 'factura__pedido__cliente__nombre', 'factura__total')
-    list_filter = ('factura__fecha',)
+    list_filter = ('factura__fecha', MontoTotalFilter)
 
     def fecha(self, obj):
         return obj.factura.fecha
@@ -77,9 +100,10 @@ class ImpuestoAdmin(admin.ModelAdmin):
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'correo_electronico', 'direccion', 'telefono')
-    search_fields = ('nombre', 'correo_electronico')
+    list_display = ('nombre', 'cedula', 'correo_electronico', 'direccion', 'telefono')
+    search_fields = ('nombre', 'cedula', 'correo_electronico')
     list_filter = ('direccion',)
+
 
 @admin.register(Promocion)
 class PromocionAdmin(admin.ModelAdmin):
