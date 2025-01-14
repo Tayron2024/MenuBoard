@@ -14,7 +14,7 @@ class ClienteAdmin(admin.ModelAdmin):
     list_editable = ('cedula','telefono')
 admin.site.register(Cliente,ClienteAdmin)
 class ItemPedidoAdmin(admin.ModelAdmin):
-    list_display = ('pedido','cliente','plato','cantidad','observacion')
+    list_display = ('cliente','plato','cantidad','observacion')
     list_editable = ('plato','cantidad','observacion')
 admin.site.register(ItemPedido,ItemPedidoAdmin)
 class PedidoAdmin(admin.ModelAdmin):
@@ -36,7 +36,7 @@ class MenuAdmin(admin.ModelAdmin):
     list_display = ('id',)
 admin.site.register(Menu,MenuAdmin)
 class MesaAdmin(admin.ModelAdmin):
-    list_display = ('numero','capacidad','disponible')
+    list_display = ('numero','capacidad','esta_disponible')
     list_editable = ('capacidad',)
 admin.site.register(Mesa,MesaAdmin)
 class RegistroHistoricoAdmin(admin.ModelAdmin):

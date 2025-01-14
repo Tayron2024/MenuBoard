@@ -2,6 +2,9 @@ from enum import Enum
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from abc import ABC, abstractmethod, ABCMeta
+from django.db.models.base import ModelBase
+
 
 #Enumerador:
 class Estado(Enum):
@@ -13,12 +16,16 @@ class Estado(Enum):
     reservado = 'RESERVADO'
 
 #Interfazes:
-class InteraccionPedido(models.Model):
+class MultiModelABCMeta(ModelBase, ABCMeta):
+    pass
+class InteraccionPedido(models.Model, ABC, metaclass=MultiModelABCMeta):
     class Meta:
         abstract = True
     #Metodos:
+    @abstractmethod
     def actualizar_estado(self, estado:Estado, pedido:'Pedido'):
         pass
+    @abstractmethod
     def visualizar_estado(self, pedido:'Pedido'):
         pass
 
@@ -26,7 +33,30 @@ class InteraccionCliente(models.Model):
     class Meta:
         abstract = True
     #Metodos:
-
+    @abstractmethod
+    def agregar_cliente(self):
+        pass
+    @abstractmethod
+    def anotar_pedido(self, pedido:'Pedido'):
+        pass
+    @abstractmethod
+    def asignar_mesa(self):
+        pass
+    @abstractmethod
+    def atender_pedido(self):
+        pass
+    @abstractmethod
+    def gestionar_pedido(self):
+        pass
+    @abstractmethod
+    def mostrar_cuenta(self):
+        pass
+    @abstractmethod
+    def mostrar_menu(self):
+        pass
+    @abstractmethod
+    def realizar_reserva(self):
+        pass
 #Clases:
 class Persona(models.Model):
     #Atributos:
@@ -105,7 +135,7 @@ class Cliente(Persona):
             historial = Historial.objects.create()
             self.historial = historial
         super().save(*args, **kwargs)
-    def modificar_pedido(self, item_pedido:'ItemPedido', es_para_eliminar:bool):
+    def modificar_pedido(self):
         pass
     def ocupar_mesa(self, mesa_ocupada):
         self.mesa = mesa_ocupada
@@ -126,7 +156,6 @@ class ItemPedido(models.Model):
     #Asociacion:
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='item_pedido_list')
     plato = models.OneToOneField('Plato', on_delete=models.CASCADE)
-    pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE, related_name='item_pedido_list')
     class Meta:
         verbose_name = "Item del Pedido"
         verbose_name_plural = "Items del Pedido"
@@ -143,6 +172,7 @@ class Pedido(models.Model):
     #Asociacion:
     estado = models.CharField(max_length=50, choices=[(tag.value, tag.name) for tag in Estado], default=Estado.pendiente)
     mesa = models.OneToOneField('Mesa', on_delete=models.CASCADE, null=True, blank=True)
+    item_pedido_list = models.ManyToManyField(ItemPedido, blank=True)
     class Meta:
         verbose_name = "Pedido"
         verbose_name_plural = "Pedidos"
@@ -171,6 +201,8 @@ class Historial(models.Model):
         verbose_name = "Historial"
         verbose_name_plural = "Historiales"
     #Metodos:
+    def agregar_pedido(self):
+        pass
     def mostrar_informacion(self):
         pass
     def __str__(self):
@@ -197,10 +229,39 @@ class Restaurante(InteraccionCliente):
             registro = RegistroHistorico.objects.create()
             self.registro_historico = registro
         super().save(*args, **kwargs)
+    def agregar_cliente(self):
+        pass
+    def agregar_mesero(self):
+        pass
+    def agregar_personal_cocina(self):
+        pass
+    def mostrar_historial(self):
+        pass
     def mostrar_mesas_disponibles(self):
+        pass
+    def mostrar_registro_historico(self):
+        pass
+    def remover_mesa(self):
         pass
     def __str__(self):
         return self.nombre
+    #Interfaz:
+    def agregar_cliente(self):
+        pass
+    def anotar_pedido(self, pedido: 'Pedido'):
+        pass
+    def asignar_mesa(self):
+        pass
+    def atender_pedido(self):
+        pass
+    def gestionar_pedido(self):
+        pass
+    def mostrar_cuenta(self):
+        pass
+    def mostrar_menu(self):
+        pass
+    def realizar_reserva(self):
+        pass
 
 class Plato(models.Model):
     #Atributos:
@@ -221,13 +282,19 @@ class Menu(models.Model):
         verbose_name = "Menu"
         verbose_name_plural = "Menus"
     #Metodos:
+    def agregar_plato(self):
+        pass
+    def mostrar_platos(self):
+        pass
+    def remover_plato(self):
+        pass
     def __str__(self):
         return str(self.id)
 
 class Mesa(models.Model):
     #Atributos:
     capacidad = models.PositiveIntegerField(default=1)
-    disponible = models.BooleanField(default=True, editable=False)
+    esta_disponible = models.BooleanField(default=True, editable=False)
     numero = models.PositiveIntegerField(editable=False, unique=True)
     class Meta:
         verbose_name = "Mesa"
@@ -238,11 +305,11 @@ class Mesa(models.Model):
             self.numero = Mesa.objects.count() + 1
         super().save(*args, **kwargs)
     def desocupar(self):
-        self.disponible = True
+        self.esta_disponible = True
     def reservar(self):
-        self.disponible = False
+        self.esta_disponible = False
     def __str__(self):
-        return str(self.numero)+' | '+str(self.capacidad)+' | '+str(self.disponible)
+        return str(self.numero)+' | '+str(self.capacidad)+' | '+str(self.esta_disponible)
 
 class RegistroHistorico(models.Model):
     pedidos = models.ManyToManyField(Pedido, editable=False, blank=True)
