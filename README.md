@@ -21,7 +21,7 @@
 
 https://drive.google.com/file/d/1WnKVkikT2FHkUT9_u0Pv7kQjc8qsrlUT/view?usp=sharing
 
-#Link de código:
+# Link de código:
 https://github.com/Tayron2024/MenuBoard/tree/main/menuboard/menuboard/Inventario
 
 # Proyecto
