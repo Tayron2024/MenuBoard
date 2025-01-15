@@ -21,6 +21,9 @@
 
 https://drive.google.com/file/d/1WnKVkikT2FHkUT9_u0Pv7kQjc8qsrlUT/view?usp=sharing
 
+#Link de código:
+https://github.com/Tayron2024/MenuBoard/tree/main/menuboard/menuboard/Inventario
+
 # Proyecto
 MenuBoard es un sistema de gestión de restaurantes diseñado para facilitar la administración de restaurantes, cafeterías o cualquier establecimiento de alimentos y bebidas. La aplicación permite crear, modificar y gestionar menús de manera eficiente, proporcionando a los usuarios una interfaz sencilla para realizar actualizaciones rápidas, gestionar categorías de platos y actualizar precios de forma intuitiva.
 
