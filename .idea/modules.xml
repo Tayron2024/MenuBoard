@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
- develop
-      <module fileurl="file://$PROJECT_DIR$/.idea/MenuBoard.iml" filepath="$PROJECT_DIR$/.idea/MenuBoard.iml" />
-
+      <module fileurl="file://$PROJECT_DIR$/.idea/MenuBoard-main.iml" filepath="$PROJECT_DIR$/.idea/MenuBoard-main.iml" />
     </modules>
   </component>
 </project>
