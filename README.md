@@ -1,25 +1,60 @@
+# Sistema de Gestión de Pedidos de Restaurante
 
-# MenuBoard
+Este proyecto tiene como objetivo implementar el módulo de Pedidos dentro de un sistema de gestión para un restaurante. El sistema está basado en un diagrama UML diseñado en la Unidad 1, que incluye los conceptos fundamentales de la programación orientada a objetos (POO), tales como la abstracción, encapsulación, herencia y polimorfismo.
 
-# Proyecto
-MenuBoard es un sistema de gestión de restaurantes diseñado para facilitar la administración de restaurantes, cafeterías o cualquier establecimiento de alimentos y bebidas. La aplicación permite crear, modificar y gestionar menús de manera eficiente, proporcionando a los usuarios una interfaz sencilla para realizar actualizaciones rápidas, gestionar categorías de platos y actualizar precios de forma intuitiva.
+## Estructura del Proyecto
 
-## Descripción
-MenuBoard es un proyecto orientado a simplificar la gestión de menús digitales. El sistema permite a los administradores agregar platos, organizar menús por categorías y modificar descripciones o precios de manera dinámica. El objetivo principal es ofrecer una herramienta que permita la actualización en tiempo real de los menús, brindando flexibilidad para adaptarse a cambios en los ingredientes, promociones o ajustes de precios.
+El sistema está compuesto por 6 módulos principales, cada uno enfocado en diferentes aspectos del restaurante. Estos módulos son:
 
-## Funcionalidades
+1. *Gestor de Clientes*: Maneja la información y las operaciones relacionadas con los clientes.
+2. *Gestor de Mesas*: Administra la disponibilidad y asignación de mesas.
+3. *Menú y Platos*: Permite la gestión de los platos ofrecidos por el restaurante.
+4. *Personal del Restaurante*: Incluye la gestión del personal de cocina y meseros.
+5. *Historial de Operaciones*: Almacena un registro de las operaciones realizadas.
+6. *Módulo de Pedidos*: Responsable de gestionar los pedidos realizados por los clientes.
 
-### Grupo 1: Módulo de Mesas y Reservaciones
-Este módulo gestiona la disponibilidad y uso de las mesas dentro del restaurante. Las mesas pueden estar en diferentes estados, tales como libre, ocupada o reservada. Los clientes pueden hacer reservaciones de mesas con antelación, especificando la fecha y hora de la reserva. Es necesario gestionar las características de cada mesa, como el número de asientos y su ubicación en el restaurante. Cuando un cliente llega, una mesa puede ser asignada, y al finalizar su uso, la mesa debe ser liberada para otros clientes. Las reservaciones pueden ser modificadas o canceladas por el cliente o el personal del restaurante.
+### Módulo de Pedidos
 
-##### Requerimientos mínimos:
-* Registrar la cantidad total de mesas en el restaurante, incluyendo atributos como identificación, número de asientos y ubicación.
-* Permitir el cambio de estado de una mesa: libre, ocupada, reservada.
-* Registrar nuevas reservaciones, especificando datos como nombre del cliente, cantidad de personas, fecha y hora.
-* Modificar o cancelar reservaciones existentes.
-* Asignar mesas a clientes que llegan sin reservación.
-* Notificar al personal cuando una mesa está lista para ser asignada.
-* Gestionar la lista de espera cuando todas las mesas estén ocupadas.
-* Permitir la unión de varias mesas permitiendo que sean fusionadas temporalmente
+El módulo de Pedidos tiene las siguientes responsabilidades principales:
 
-![Captura de pantalla 2025-01-14 213108](https://github.com/user-attachments/assets/ad1340f5-393a-4ed5-a375-c4d983c0f17f)
+- *Gestión de Pedidos*: Registrar los pedidos realizados por los clientes, especificando los elementos solicitados, cantidades y observaciones.
+- *Cálculo de Factura*: Calcular el total de los pedidos realizados.
+- *Seguimiento de Estado*: Actualizar y visualizar el estado de los pedidos (e.g., EN_PREPARACION, SERVIDO, PAGADO).
+
+### Implementación de POO
+
+Los conceptos de abstracción y encapsulación se implementan a través de las clases principales que representan las entidades del sistema, tales como:
+
+- *Cliente*: Representa a los clientes del restaurante.
+- *Pedido*: Contiene información sobre los pedidos realizados.
+- *ItemPedido*: Representa cada elemento del pedido.
+- *PersonalCocina* y *Mesero*: Modelan al personal del restaurante.
+
+El polimorfismo y la herencia también se emplean para garantizar que las interacciones entre clases sean flexibles y escalables.
+
+## Diagrama UML
+
+El siguiente diagrama UML describe la estructura del sistema. Este fue actualizado durante el desarrollo para reflejar los cambios realizados:
+
+![image](https://github.com/user-attachments/assets/ae33e66d-7f59-4cef-b792-bfeb138b42ed)
+
+El diagrama muestra las clases principales, sus atributos y métodos, así como las relaciones entre ellas, como agregaciones, composiciones y asociaciones.
+
+## Uso del Sistema
+
+1. *Registro de Clientes*: Los clientes pueden ser registrados en el sistema mediante sus datos personales.
+2. *Creación de Pedidos*: Los pedidos pueden ser realizados indicando los platos y cantidades.
+3. *Asignación de Mesas*: Los clientes pueden ser asignados a mesas disponibles.
+4. *Seguimiento de Pedidos*: El personal puede actualizar y consultar el estado de los pedidos.
+5. *Cálculo de Facturas*: El sistema calcula automáticamente el total de cada pedido.
+
+## Tecnologías Utilizadas
+
+- Lenguaje de Programación: *[Java, Python]*
+- IDE: *[IntelliJ, PyCharm]*
+- Herramienta de Modelado UML: *[Visual Paradigm]*
+
+## Instalación y Configuración
+
+1. Clone el repositorio:
+   git clone https://github.com/Jos748gran/MenuBoard.git
