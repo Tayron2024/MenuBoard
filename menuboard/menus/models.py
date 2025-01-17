@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
 
-# Modelo del Menu
 class Menu(models.Model):
     nombre = models.CharField(max_length=50)
     estado = models.BooleanField()
@@ -20,7 +19,6 @@ class Menu(models.Model):
         self.save()
 
 
-# Modelo de Categoría
 class Categoria(models.Model):
     nombre = models.CharField(max_length=50)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='categorias')
@@ -29,7 +27,6 @@ class Categoria(models.Model):
         return self.nombre
 
 
-# Modelo de Producto
 class Producto(models.Model):
     nombre = models.CharField(max_length=50)
     descripcion = models.CharField(max_length=50)
