@@ -37,13 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
-    'util.apps.UtilConfig'
-=======
+    'mesas.apps.MesasConfig'
     'menus.apps.MenusConfig'
 
-
->>>>>>> origin/develop
 ]
 
 MIDDLEWARE = [
