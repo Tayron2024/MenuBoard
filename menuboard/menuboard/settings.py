@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Inventario.apps.InventarioConfig'
+    'Inventario.apps.InventarioConfig',
+    'mesas.apps.MesasConfig',
     'menus.apps.MenusConfig'
 ]
 
